@@ -22,6 +22,10 @@ describe "RequireExplicitScope basic operations" do
   end
 
   it "should allow requiring an explicit scope for direct queries" do
+    ::User.class_eval do
+      require_explicit_scope
+    end
+
     lambda { ::User.where(:name => 'User 1') }.should raise_error
   end
 end
