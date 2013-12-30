@@ -27,7 +27,7 @@ module RequireExplicitScope
           drop_table :rec_spec_users rescue nil
           create_table :rec_spec_users do |t|
             t.string :name, :null => false
-            t.timestamp :date_of_birth
+            t.string :favorite_color
           end
         end
       end
