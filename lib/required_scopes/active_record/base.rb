@@ -28,6 +28,16 @@ module RequiredScopes
           end
         end
 
+        def satisfying_categories(*categories)
+          out = all
+          out.required_scope_categories_satisfied!(categories)
+          out
+        end
+
+        def satisfying_category(category)
+          satisfying_categories(category)
+        end
+
         def required_scope_categories
           @required_scope_categories || [ ]
         end

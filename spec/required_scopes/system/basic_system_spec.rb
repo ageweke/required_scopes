@@ -109,6 +109,37 @@ describe "RequiredScopes basic operations" do
     it "should skip all checks on #unscoped" do
       ::User.unscoped.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
     end
+
+    it "should allow manually saying that categories are satisfied" do
+      ::User.red.satisfying_category(:taste).to_a.sort.should == [ @red_salty, @red_sweet ].to_a
+      ::User.satisfying_category(:color).sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].to_a
+      ::User.satisfying_categories(:color, :taste).to_a.sort.should ==
+        [ @red_sweet, @green_sweet, @blue_sweet, @red_salty, @green_salty, @blue_salty ].to_a.sort
+      ::User.satisfying_categories(:color, :taste).sweet.to_a.sort.should ==
+        [ @red_sweet, @green_sweet, @blue_sweet ].to_a.sort
+    end
+
+    it "should allow saying that categories are satisfied in a class method, in any position" do
+      ::User.class_eval do
+        class << self
+          def red_and_green
+            satisfying_category(:color).where(:favorite_color => %w{red green})
+          end
+
+          def green_and_blue
+            where(:favorite_color => %w{green blue}).satisfying_category(:color)
+          end
+
+          def just_blue
+            where(:favorite_color => %w{red blue}).satisfying_category(:color).where(:favorite_color => %w{blue green})
+          end
+        end
+      end
+
+      ::User.red_and_green.salty.to_a.sort.should == [ @red_salty, @green_salty ].sort
+      ::User.green_and_blue.salty.to_a.sort.should == [ @green_salty, @blue_salty ].sort
+      ::User.just_blue.salty.to_a.sort.should == [ @blue_salty ].sort
+    end
   end
 
     # ::User.class_eval do
