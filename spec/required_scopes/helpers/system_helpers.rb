@@ -28,12 +28,22 @@ module RequiredScopes
           create_table :rec_spec_users do |t|
             t.string :name, :null => false
             t.string :favorite_color
+            t.string :favorite_taste
           end
         end
       end
 
       def create_standard_system_spec_models!
         define_model_class(:User, 'rec_spec_users') { }
+      end
+
+      def create_standard_system_spec_instances!
+        @red_salty = ::User.create!(:name => 'red-salty', :favorite_color => 'red', :favorite_taste => 'salty')
+        @green_salty = ::User.create!(:name => 'green-salty', :favorite_color => 'green', :favorite_taste => 'salty')
+        @blue_salty = ::User.create!(:name => 'blue-salty', :favorite_color => 'blue', :favorite_taste => 'salty')
+        @red_sweet = ::User.create!(:name => 'red-sweet', :favorite_color => 'red', :favorite_taste => 'sweet')
+        @green_sweet = ::User.create!(:name => 'green-sweet', :favorite_color => 'green', :favorite_taste => 'sweet')
+        @blue_sweet = ::User.create!(:name => 'blue-sweet', :favorite_color => 'blue', :favorite_taste => 'sweet')
       end
 
       def drop_standard_system_spec_tables!

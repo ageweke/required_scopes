@@ -8,22 +8,4 @@ end
 
 ActiveRecord::Base.send(:include, RequiredScopes::ActiveRecord::Base)
 
-class ActiveRecord::Relation
-  def has_base_scope!
-    $stderr.puts "has_base_scope! (#{object_id})"
-    @_has_base_scope = true
-  end
-
-  def ensure_has_base_scope!
-    if klass.explicit_scope_required? && (! @_has_base_scope)
-      raise "You must include an explicit scope here, for class #{klass.name}; relation: (#{object_id})"
-    end
-  end
-
-  def exec_queries_with_base_scope_check(*args)
-    ensure_has_base_scope!
-    exec_queries_without_base_scope_check(*args)
-  end
-
-  alias_method_chain :exec_queries, :base_scope_check
-end
+require "required_scopes/active_record/relation"
