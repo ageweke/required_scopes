@@ -1,4 +1,4 @@
-module RequireExplicitScope
+module RequiredScopes
   module Helpers
     class DatabaseHelper
       class InvalidDatabaseConfigurationError < StandardError; end
@@ -59,18 +59,18 @@ module RequireExplicitScope
         return nil unless File.exist?(config_file_path)
         require config_file_path
 
-        return nil unless defined?(REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG)
-        return nil unless REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG.kind_of?(Hash)
+        return nil unless defined?(REQUIRED_SCOPES_SPEC_DATABASE_CONFIG)
+        return nil unless REQUIRED_SCOPES_SPEC_DATABASE_CONFIG.kind_of?(Hash)
 
-        return nil unless REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG[:require]
-        return nil unless REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG[:database_gem_name]
+        return nil unless REQUIRED_SCOPES_SPEC_DATABASE_CONFIG[:require]
+        return nil unless REQUIRED_SCOPES_SPEC_DATABASE_CONFIG[:database_gem_name]
 
-        return nil unless REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG
-        REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG
+        return nil unless REQUIRED_SCOPES_SPEC_DATABASE_CONFIG
+        REQUIRED_SCOPES_SPEC_DATABASE_CONFIG
       end
 
       def travis_ci_config_from_environment
-        dbtype = (ENV['REQUIRE_EXPLICIT_SCOPE_TRAVIS_CI_DATABASE_TYPE'] || '').strip.downcase
+        dbtype = (ENV['REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE'] || '').strip.downcase
         is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
 
         if is_jruby
@@ -155,18 +155,18 @@ module RequireExplicitScope
       end
 
       def invalid_config_file!
-        raise Errno::ENOENT, %{In order to run specs for require_explicit_scope, you need to create a file at:
+        raise Errno::ENOENT, %{In order to run specs for required_scopes, you need to create a file at:
 
 #{config_file_path}
 
-...that defines a top-level REQUIRE_EXPLICIT_SCOPE_SPEC_DATABASE_CONFIG hash, with members:
+...that defines a top-level REQUIRED_SCOPES_SPEC_DATABASE_CONFIG hash, with members:
 
   :require => 'name_of_adapter_to_require',
   :database_gem_name => 'name_of_gem_for_adapter',
   :config  => { ...whatever ActiveRecord::Base.establish_connection should be passed... }
 
 Alternatively, if you're running under Travis CI, you can set the environment variable
-REQUIRE_EXPLICIT_SCOPE_TRAVIS_CI_DATABASE_TYPE to 'postgres', 'mysql', or 'sqlite', and it will
+REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE to 'postgres', 'mysql', or 'sqlite', and it will
 use the correct configuration for testing on Travis CI.}
       end
     end

@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'require_explicit_scope/version'
+require 'required_scopes/version'
 
 Gem::Specification.new do |s|
-  s.name          = "require_explicit_scope"
-  s.version       = RequireExplicitScope::VERSION
+  s.name          = "required_scopes"
+  s.version       = RequiredScopes::VERSION
   s.authors       = ["Andrew Geweke"]
   s.email         = ["andrew@geweke.org"]
   s.description   = %q{Require an explicit scope for all queries to a table.}
   s.summary       = %q{Require an explicit scope for all queries to a table.}
-  s.homepage      = "https://github.com/ageweke/require_explicit_scope"
+  s.homepage      = "https://github.com/ageweke/required_scopes"
   s.license       = "MIT"
 
   s.files         = `git ls-files`.split($/)
@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
     s.add_development_dependency "pry-stack_explorer"
   end
 
-  ar_version = ENV['REQUIRE_EXPLICIT_SCOPE_AR_TEST_VERSION']
+  ar_version = ENV['REQUIRED_SCOPES_AR_TEST_VERSION']
   ar_version = ar_version.strip if ar_version
 
   version_spec = case ar_version
@@ -43,8 +43,8 @@ Gem::Specification.new do |s|
 
   s.add_dependency "activesupport", ">= 3.0", "<= 4.99.99"
 
-  require File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'require_explicit_scope', 'helpers', 'database_helper'))
-  database_gem_name = RequireExplicitScope::Helpers::DatabaseHelper.maybe_database_gem_name
+  require File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'required_scopes', 'helpers', 'database_helper'))
+  database_gem_name = RequiredScopes::Helpers::DatabaseHelper.maybe_database_gem_name
 
   # Ugh. Later versions of the 'mysql2' gem are incompatible with AR 3.0.x; so, here, we explicitly trap that case
   # and use an earlier version of that Gem.

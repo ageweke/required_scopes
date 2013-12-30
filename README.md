@@ -1,4 +1,4 @@
-# RequireExplicitScope
+# RequiredScopes
 
 TODO: Write a gem description
 
@@ -6,7 +6,7 @@ TODO: Write a gem description
 
 Add this line to your application's Gemfile:
 
-    gem 'require_explicit_scope'
+    gem 'required_scopes'
 
 And then execute:
 
@@ -14,7 +14,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install require_explicit_scope
+    $ gem install required_scopes
 
 ## Usage
 

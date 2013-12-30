@@ -1,14 +1,14 @@
-require 'require_explicit_scope'
-require 'require_explicit_scope/helpers/database_helper'
-require 'require_explicit_scope/helpers/system_helpers'
+require 'required_scopes'
+require 'required_scopes/helpers/database_helper'
+require 'required_scopes/helpers/system_helpers'
 
 require 'pry'
 
-describe "RequireExplicitScope basic operations" do
-  include RequireExplicitScope::Helpers::SystemHelpers
+describe "RequiredScopes basic operations" do
+  include RequiredScopes::Helpers::SystemHelpers
 
   before :each do
-    @dh = RequireExplicitScope::Helpers::DatabaseHelper.new
+    @dh = RequiredScopes::Helpers::DatabaseHelper.new
     @dh.setup_activerecord!
 
     create_standard_system_spec_tables!
@@ -40,7 +40,7 @@ describe "RequireExplicitScope basic operations" do
 
   it "should allow requiring an explicit scope for direct queries" do
     ::User.class_eval do
-      require_explicit_scope
+      require_scopes
 
       scope :red, lambda { where(:favorite_color => 'red') }, :base => true
     end

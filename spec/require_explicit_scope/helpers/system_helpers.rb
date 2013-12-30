@@ -1,7 +1,7 @@
 require 'active_record'
 require 'active_record/migration'
 
-module RequireExplicitScope
+module RequiredScopes
   module Helpers
     module SystemHelpers
       def migrate(&block)

@@ -1,12 +1,12 @@
 require 'active_support'
 
-module RequireExplicitScope
+module RequiredScopes
   module ActiveRecord
     module Base
       extend ActiveSupport::Concern
 
       module ClassMethods
-        def require_explicit_scope
+        def require_scopes
           @_explicit_scope_required = true
         end
 

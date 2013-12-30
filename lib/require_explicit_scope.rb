@@ -1,12 +1,12 @@
-require "require_explicit_scope/version"
-require "require_explicit_scope/active_record/base"
+require "required_scopes/version"
+require "required_scopes/active_record/base"
 require "active_record"
 
-module RequireExplicitScope
+module RequiredScopes
   # Your code goes here...
 end
 
-ActiveRecord::Base.send(:include, RequireExplicitScope::ActiveRecord::Base)
+ActiveRecord::Base.send(:include, RequiredScopes::ActiveRecord::Base)
 
 class ActiveRecord::Relation
   def has_base_scope!

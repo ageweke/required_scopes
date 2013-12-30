@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in require_explicit_scope.gemspec
+# Specify your gem's dependencies in required_scopes.gemspec
 gemspec
 
-ar_version = ENV['REQUIRE_EXPLICIT_SCOPE_AR_TEST_VERSION']
+ar_version = ENV['REQUIRED_SCOPES_AR_TEST_VERSION']
 ar_version = ar_version.strip if ar_version
 
 version_spec = case ar_version
