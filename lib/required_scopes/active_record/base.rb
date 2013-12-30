@@ -11,7 +11,20 @@ module RequiredScopes
           @required_scope_categories = categories
 
           categories.each do |category|
-            scope "all_#{category.to_s.pluralize}", lambda { }, :category => category
+            scope "all_#{category.to_s.pluralize}", lambda { all }, :category => category
+          end
+        end
+
+        def unscoped(&block)
+          if block
+            super do
+              all_required_scope_categories_satisfied!
+              block.call
+            end
+          else
+            out = super
+            out.all_required_scope_categories_satisfied!
+            out
           end
         end
 

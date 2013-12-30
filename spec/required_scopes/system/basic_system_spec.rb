@@ -14,10 +14,6 @@ describe "RequiredScopes basic operations" do
     create_standard_system_spec_tables!
     create_standard_system_spec_models!
     create_standard_system_spec_instances!
-
-    @user1 = ::User.new
-    @user1.name = 'User 1'
-    @user1.save!
   end
 
   after :each do
@@ -67,16 +63,53 @@ describe "RequiredScopes basic operations" do
     e.message.should match(/#{expected_missing_categories.sort_by(&:to_s).join(", ")}/)
   end
 
-  it "should allow requiring an explicit scope for direct queries" do
-    ::User.class_eval do
-      must_scope_by :color, :taste
+  context "with two required scope categories" do
+    before :each do
+      ::User.class_eval do
+        must_scope_by :color, :taste
 
-      scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
-      scope :green, lambda { where(:favorite_color => 'green') }, :category => :color
+        scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
+        scope :green, lambda { where(:favorite_color => 'green') }, :category => :color
 
-      scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
-      scope :sweet, lambda { where(:favorite_taste => 'sweet') }, :category => :taste
+        scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
+        scope :sweet, lambda { where(:favorite_taste => 'sweet') }, :category => :taste
+
+        scope :red_and_salty, lambda { where(:favorite_color => 'red', :favorite_taste => 'salty') }, :categories => [ :color, :taste ]
+      end
     end
+
+    it "should raise if no categories are applied" do
+      should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ ]) { ::User.all.to_a }
+    end
+
+    it "should raise if only one category is applied" do
+      should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ :color ]) { ::User.red.to_a }
+    end
+
+    it "should not raise if both categories are individually applied" do
+      ::User.red.salty.to_a.should == [ @red_salty ]
+    end
+
+    it "should not raise if both categories are satisfied by a single scope" do
+      ::User.red_and_salty.to_a.should == [ @red_salty ]
+    end
+
+    it "should allow further qualifying the scopes, and in the middle" do
+      ::User.where("name LIKE 'red%'").red.where("name LIKE '%salty'").salty.where("name LIKE '%d-s%'").to_a.should == [ @red_salty ]
+      ::User.where("name LIKE 'green%'").red.salty.to_a.should == [ ]
+      ::User.red.where("name LIKE '%sweet'").salty.to_a.should == [ ]
+      ::User.red.salty.where("name LIKE '%sweet'").to_a.should == [ ]
+    end
+
+    it "should automatically have a scope that includes all of each category" do
+      ::User.red.all_tastes.to_a.sort.should == [ @red_salty, @red_sweet ].sort
+      ::User.all_colors.sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].sort
+    end
+
+    it "should skip all checks on #unscoped" do
+      ::User.unscoped.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
+    end
+  end
 
     # ::User.class_eval do
     #   base_scope_required!
@@ -84,12 +117,4 @@ describe "RequiredScopes basic operations" do
     #   base_scope :red, lambda { where(:favorite_color => 'red') }
     # end
 
-    should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ ]) { ::User.all.to_a }
-    should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ :color ]) { ::User.red.to_a }
-
-    ::User.red.salty.to_a.should == [ @red_salty ]
-
-    # ::User.all_colors.all_tastes.where(:name => 'User 1')
-    # ::User.unscoped.where(:name => 'User 1')
-  end
 end

@@ -7,6 +7,10 @@ require 'required_scopes/errors'
     @scope_categories_satisfied |= categories
   end
 
+  def all_required_scope_categories_satisfied!
+    required_scope_categories_satisfied!(required_scope_categories)
+  end
+
   def scope_categories_satisfied
     @scope_categories_satisfied ||= [ ]
   end
