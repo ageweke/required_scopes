@@ -110,6 +110,10 @@ describe "RequiredScopes basic operations" do
       ::User.unscoped.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
     end
 
+    it "should skip all checks on #unscoped, and persist through other scopes" do
+      ::User.unscoped.red.to_a.sort.should == [ @red_salty, @red_sweet ].sort
+    end
+
     it "should allow manually saying that categories are satisfied" do
       ::User.red.satisfying_category(:taste).to_a.sort.should == [ @red_salty, @red_sweet ].to_a
       ::User.satisfying_category(:color).sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].to_a
