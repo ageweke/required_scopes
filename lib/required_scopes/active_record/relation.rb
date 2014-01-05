@@ -29,10 +29,18 @@ require 'required_scopes/errors'
     end
   end
 
-  [ :exec_queries, :perform_calculation, :update_all ].each do |method_name|
-    define_method("#{method_name}_with_scope_categories_check") do |*args, &block|
+  [ :exec_queries, :perform_calculation, :update_all, :delete_all, :exists? ].each do |method_name|
+    method_base_name = method_name
+    method_suffix = ""
+
+    if method_base_name =~ /^(.*?)([\?\!])$/
+      method_base_name = $1
+      method_suffix = $2
+    end
+
+    define_method("#{method_base_name}_with_scope_categories_check#{method_suffix}") do |*args, &block|
       ensure_categories_satisfied!(method_name)
-      send("#{method_name}_without_scope_categories_check", *args, &block)
+      send("#{method_base_name}_without_scope_categories_check#{method_suffix}", *args, &block)
     end
 
     alias_method_chain method_name, :scope_categories_check

@@ -162,7 +162,7 @@ describe "RequiredScopes basic operations" do
   #         #load()
   #         #reload()
   #       N #reset
-  #         #to_sql
+  #       N #to_sql
   #
   #   - FinderMethods:
   #         #find(*args, &block)
@@ -261,6 +261,7 @@ describe "RequiredScopes basic operations" do
 
     describe "methods that should raise" do
       [
+        # ActiveRecord::Relation
         srd(:first_or_create, :exec_queries) { |s| s.first_or_create(:name => 'some user') },
         srd(:first_or_create!, :exec_queries) { |s| s.first_or_create!(:name => 'some user') },
         srd(:first_or_initialize, :exec_queries) { |s| s.first_or_initialize(:name => 'some user') },
@@ -277,7 +278,25 @@ describe "RequiredScopes basic operations" do
         srd(:many?, :perform_calculation) { |s| s.to_relation.many? },
         srd(:scoping, :exec_queries) { |s| s.to_relation.scoping { ::User.all.to_a } },
         srd(:update_all, :update_all) { |s| s.update_all("name = 'foo'") },
-        srd(:update, :exec_queries) { |s| s.update(::User.unscoped.first.id, :name => 'foo') }
+        srd(:update, :exec_queries) { |s| s.update(::User.unscoped.first.id, :name => 'foo') },
+        srd(:destroy_all, :exec_queries) { |s| s.destroy_all },
+        srd(:destroy, :exec_queries) { |s| s.destroy(::User.unscoped.first.id) },
+        srd(:delete_all, :delete_all) { |s| s.delete_all },
+        srd(:delete, :delete_all) { |s| s.delete(::User.unscoped.first.id) },
+        srd(:load, :exec_queries) { |s| s.to_relation.load },
+        srd(:reload, :exec_queries) { |s| s.to_relation.reload },
+
+        # ActiveRecord::Relation::FinderMethods
+        srd(:find, :exec_queries) { |s| s.find(::User.unscoped.first.id) },
+        srd(:find_by, :exec_queries) { |s| s.find_by(:name => 'User 1') },
+        srd(:find_by!, :exec_queries) { |s| s.find_by!(:name => ::User.unscoped.first.name) },
+        srd(:take, :exec_queries) { |s| s.take },
+        srd(:take!, :exec_queries) { |s| s.take! },
+        srd(:first, :exec_queries) { |s| s.first },
+        srd(:first!, :exec_queries) { |s| s.first! },
+        srd(:last, :exec_queries) { |s| s.last },
+        srd(:last!, :exec_queries) { |s| s.last! },
+        srd(:exists?, :exists?) { |s| s.exists? }
       ].each do |srd_obj|
         describe "##{srd_obj.description}" do
           it "should raise when invoked on the base class" do
@@ -317,10 +336,13 @@ describe "RequiredScopes basic operations" do
 
     describe "methods that should not raise" do
       [
+        # ActiveRecord::Relation
         nrd(:new) { |s| s.new },
         nrd(:create) { |s| s.create(:name => 'User 1') },
         nrd(:create!) { |s| s.create!(:name => 'User 1') },
-        nrd(:scoping) { |s| s.to_relation.scoping { } }
+        nrd(:scoping) { |s| s.to_relation.scoping { } },
+        nrd(:reset) { |s| s.to_relation.reset },
+        nrd(:to_sql) { |s| s.to_relation.to_sql }
       ].each do |nrd_obj|
         describe "#{nrd_obj.description}" do
           it "should not raise when invoked on the base class" do
