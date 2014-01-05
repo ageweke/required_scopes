@@ -29,7 +29,7 @@ require 'required_scopes/errors'
     end
   end
 
-  [ :exec_queries ].each do |method_name|
+  [ :exec_queries, :perform_calculation, :update_all ].each do |method_name|
     define_method("#{method_name}_with_scope_categories_check") do |*args, &block|
       ensure_categories_satisfied!(method_name)
       send("#{method_name}_without_scope_categories_check", *args, &block)

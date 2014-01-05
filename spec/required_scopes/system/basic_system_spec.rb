@@ -100,7 +100,11 @@ describe "RequiredScopes basic operations" do
         ::User.unscoped.red.to_a.sort.should == [ @red_salty, @red_sweet ].sort
       end
 
-      it "should skip all checks inside an #unscoped block"
+      it "should skip all checks inside an #unscoped block" do
+        ::User.unscoped do
+          ::User.all.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
+        end
+      end
 
       it "should allow manually saying that categories are satisfied" do
         ::User.red.satisfying_category(:taste).to_a.sort.should == [ @red_salty, @red_sweet ].to_a
@@ -148,7 +152,7 @@ describe "RequiredScopes basic operations" do
   #         #empty?()
   #         #any?()
   #         #many?()
-  #       N #scoping(&block) (should NEVER raise, but should persist through the block)
+  #         #scoping(&block) (should NEVER raise, but should persist through the block)
   #         #update_all(updates)
   #         #update(id, attributes)
   #         #destroy_all(conditions = nil)
@@ -222,7 +226,7 @@ describe "RequiredScopes basic operations" do
   #       N #table_name, #quoted_table_name, #primary_key, #quoted_primary_key, #connection, #columns_hash
 
     class ShouldRaiseDescription
-      attr_reader :description
+      attr_reader :description, :block
 
       def initialize(description, triggering_method, block)
         @description = description
@@ -241,15 +245,52 @@ describe "RequiredScopes basic operations" do
       end
     end
 
+    class ActiveRecord::Base
+      class << self
+        def to_relation
+          relation
+        end
+      end
+    end
+
+    class ActiveRecord::Relation
+      def to_relation
+        self
+      end
+    end
+
     describe "methods that should raise" do
       [
         srd(:first_or_create, :exec_queries) { |s| s.first_or_create(:name => 'some user') },
         srd(:first_or_create!, :exec_queries) { |s| s.first_or_create!(:name => 'some user') },
-        srd(:explain, :exec_queries) { |s| s.all.explain }
+        srd(:first_or_initialize, :exec_queries) { |s| s.first_or_initialize(:name => 'some user') },
+        srd(:find_or_create_by, :exec_queries) { |s| s.find_or_create_by(:name => 'some user') },
+        srd(:find_or_create_by!, :exec_queries) { |s| s.find_or_create_by!(:name => 'some user') },
+        srd(:find_or_initialize_by, :exec_queries) { |s| s.find_or_initialize_by(:name => 'some user') },
+        srd(:to_a, :exec_queries) { |s| s.to_relation.to_a },
+        srd(:explain, :exec_queries) { |s| s.to_relation.explain },
+        srd(:as_json, :exec_queries) { |s| s.to_relation.as_json },
+        srd(:count, :perform_calculation) { |s| s.count },
+        srd(:size, :perform_calculation) { |s| s.to_relation.size },
+        srd(:empty?, :perform_calculation) { |s| s.to_relation.empty? },
+        srd(:any?, :perform_calculation) { |s| s.to_relation.any? },
+        srd(:many?, :perform_calculation) { |s| s.to_relation.many? },
+        srd(:scoping, :exec_queries) { |s| s.to_relation.scoping { ::User.all.to_a } },
+        srd(:update_all, :update_all) { |s| s.update_all("name = 'foo'") },
+        srd(:update, :exec_queries) { |s| s.update(::User.unscoped.first.id, :name => 'foo') }
       ].each do |srd_obj|
-        describe "#{srd_obj.description}" do
+        describe "##{srd_obj.description}" do
           it "should raise when invoked on the base class" do
             srd_obj.go!(self, ::User, [ :color, :taste ], [ ])
+          end
+
+          it "should raise when invoked with just one scope" do
+            srd_obj.go!(self, ::User.red, [ :color, :taste ], [ :color ])
+            srd_obj.go!(self, ::User.salty, [ :color, :taste ], [ :taste ])
+          end
+
+          it "should not raise when invoked with both scopes" do
+            srd_obj.block.call(::User.red.salty)
           end
         end
       end
@@ -278,6 +319,8 @@ describe "RequiredScopes basic operations" do
       [
         nrd(:new) { |s| s.new },
         nrd(:create) { |s| s.create(:name => 'User 1') },
+        nrd(:create!) { |s| s.create!(:name => 'User 1') },
+        nrd(:scoping) { |s| s.to_relation.scoping { } }
       ].each do |nrd_obj|
         describe "#{nrd_obj.description}" do
           it "should not raise when invoked on the base class" do

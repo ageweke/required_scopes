@@ -18,7 +18,7 @@ module RequiredScopes
         def unscoped(&block)
           if block
             super do
-              all_required_scope_categories_satisfied!
+              current_scope.all_required_scope_categories_satisfied!
               block.call
             end
           else
