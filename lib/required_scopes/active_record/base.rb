@@ -11,7 +11,7 @@ module RequiredScopes
           @required_scope_categories = categories
 
           categories.each do |category|
-            scope "all_#{category.to_s.pluralize}", lambda { all }, :category => category
+            scope "ignoring_#{category}", lambda { all }, :category => category
           end
         end
 
