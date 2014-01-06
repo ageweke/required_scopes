@@ -119,7 +119,9 @@ describe "RequiredScopes and associations" do
   end
 
   it "should not require a scope when accessed via #references" do
-    Group.references(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+    if ::RequiredScopes::ActiveRecord::VersionCompatibility.supports_references_method?
+      Group.references(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+    end
   end
 
   it "should not require a scope when accessed via has_one" do

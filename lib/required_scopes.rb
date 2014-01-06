@@ -12,3 +12,6 @@ ActiveRecord::Base.send(:include, ::RequiredScopes::ActiveRecord::Base)
 
 # ...and add methods to ::ActiveRecord::Relation that enforce those requirements.
 require "required_scopes/active_record/relation"
+
+require "required_scopes/active_record/version_compatibility"
+::RequiredScopes::ActiveRecord::VersionCompatibility.apply_version_specific_fixes!

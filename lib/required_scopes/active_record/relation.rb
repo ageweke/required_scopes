@@ -87,6 +87,7 @@ require 'required_scopes/active_record/version_compatibility'
       # We return a special exception for the category +:base+, because we want to give a simpler, cleaner error
       # message for users who are just using the #base_scope_required! syntactic sugar instead of the full categories
       # system.
+      # $stderr.puts "RAISING AT: #{caller.join("\n    ")}"
       if missing_categories == [ :base ]
         raise RequiredScopes::Errors::BaseScopeNotSatisfiedError.new(klass, self, triggering_method)
       else
