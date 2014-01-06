@@ -23,8 +23,8 @@ describe "RequiredScopes and inheritance" do
       must_scope_by :color
       must_scope_by :taste
 
-      scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
-      scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
+      scope :red, lambda { where(:favorite_color => 'red') }, :satisfies => :color
+      scope :salty, lambda { where(:favorite_taste => 'salty') }, :satisfies => :taste
     end
 
     should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ :taste ]) { ::User.salty.to_a }
@@ -33,14 +33,14 @@ describe "RequiredScopes and inheritance" do
   it "should inherit #must_scope_by in child classes" do
     ::User.class_eval do
       must_scope_by :color
-      scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
+      scope :red, lambda { where(:favorite_color => 'red') }, :satisfies => :color
     end
 
     class ::UserSub1 < ::User
       self.table_name = ::User.table_name
 
       must_scope_by :taste
-      scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
+      scope :salty, lambda { where(:favorite_taste => 'salty') }, :satisfies => :taste
     end
 
     should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ :taste ], :model_class => ::UserSub1) { ::UserSub1.salty.to_a }
@@ -49,14 +49,14 @@ describe "RequiredScopes and inheritance" do
   it "should allow ignoring a required scope in a subclass" do
     ::User.class_eval do
       must_scope_by :color
-      scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
+      scope :red, lambda { where(:favorite_color => 'red') }, :satisfies => :color
     end
 
     class ::UserSub2 < ::User
       self.table_name = ::User.table_name
 
       must_scope_by :taste
-      scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
+      scope :salty, lambda { where(:favorite_taste => 'salty') }, :satisfies => :taste
 
       ignore_parent_scope_requirement :color
     end

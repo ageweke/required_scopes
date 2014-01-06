@@ -24,7 +24,7 @@ module RequiredScopes
 categories before you use it: #{missing_categories.sort_by(&:to_s).join(", ")}.
 
 Satisfy these categories by including scopes in your query that are tagged with
-:category => <category name>, for each of the categories.}
+:satisfies => <category name>, for each of the categories.}
       end
     end
 

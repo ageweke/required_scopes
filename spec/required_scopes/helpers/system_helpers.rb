@@ -37,13 +37,13 @@ module RequiredScopes
         ::User.class_eval do
           must_scope_by :color, :taste
 
-          scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
-          scope :green, lambda { where(:favorite_color => 'green') }, :category => :color
+          scope :red, lambda { where(:favorite_color => 'red') }, :satisfies => :color
+          scope :green, lambda { where(:favorite_color => 'green') }, :satisfies => :color
 
-          scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
-          scope :sweet, lambda { where(:favorite_taste => 'sweet') }, :category => :taste
+          scope :salty, lambda { where(:favorite_taste => 'salty') }, :satisfies => :taste
+          scope :sweet, lambda { where(:favorite_taste => 'sweet') }, :satisfies => :taste
 
-          scope :red_and_salty, lambda { where(:favorite_color => 'red', :favorite_taste => 'salty') }, :categories => [ :color, :taste ]
+          scope :red_and_salty, lambda { where(:favorite_color => 'red', :favorite_taste => 'salty') }, :satisfies => [ :color, :taste ]
         end
       end
 
