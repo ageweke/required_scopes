@@ -56,7 +56,7 @@ require 'required_scopes/errors'
     end
 
     define_method("#{method_base_name}_with_scope_categories_check#{method_suffix}") do |*args, &block|
-      ensure_categories_satisfied!(method_name)
+      ensure_categories_satisfied!(method_name) unless kind_of?(::ActiveRecord::AssociationRelation)
       send("#{method_base_name}_without_scope_categories_check#{method_suffix}", *args, &block)
     end
 
