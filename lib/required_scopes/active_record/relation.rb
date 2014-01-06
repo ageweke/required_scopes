@@ -23,6 +23,9 @@ require 'required_scopes/active_record/version_compatibility'
   #     User.active_for_client_named('foo').first
   #     User.where(:client_id => client_id).where(:deleted => false).scope_categories_satisfied(:client, :deleted).first
   def scope_categories_satisfied(*categories)
+    categories = categories.flatten
+    return self if categories.length == 0
+
     out = clone
     out.scope_categories_satisfied!(categories)
     out
@@ -35,6 +38,8 @@ require 'required_scopes/active_record/version_compatibility'
 
   # Tells this Relation that one or more categories have been satisfied.
   def scope_categories_satisfied!(categories)
+    categories = categories.flatten
+
     @satisfied_scope_categories ||= [ ]
     @satisfied_scope_categories |= categories
   end
@@ -47,6 +52,11 @@ require 'required_scopes/active_record/version_compatibility'
   # Returns the set of scope categories that have been satisfied.
   def satisfied_scope_categories
     @satisfied_scope_categories ||= [ ]
+  end
+
+  # Overrides #merge to merge the information about which scope categories have been satisfied, too.
+  def merge(other_relation)
+    super.scope_categories_satisfied(satisfied_scope_categories | other_relation.satisfied_scope_categories)
   end
 
   delegate :required_scope_categories, :to => :klass
