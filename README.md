@@ -29,7 +29,7 @@ For example:
 
       class << self
         def for_client(client_id)
-          where(:client_id => client_id).satisfying_categories(:client_id)
+          where(:client_id => client_id).scope_category_satisfied(:client_id)
         end
       end
     end
@@ -105,8 +105,8 @@ An example:
 
       class << self
         def deleted_recently
-          # The call to #satisfying_categories(:base) says "the scope I'm returning satisfies #base_scope_required!"
-          where("deleted_at >= ?", 1.week.ago).satisfying_categories(:base)
+          # The call to #base_scope_satisfied says "the scope I'm returning satisfies #base_scope_required!"
+          where("deleted_at >= ?", 1.week.ago).base_scope_satisfied
         end
       end
     end
@@ -161,11 +161,11 @@ For example:
 
       class << self
         def for_client(c)
-          where(:client_id => c.id).satisfying_category(:client)
+          where(:client_id => c.id).scope_category_satisfied(:client)
         end
 
         def active_for_client(c)
-          where(:client_id => c.id, :deleted_at => nil).satisfying_categories(:client, :deleted)
+          where(:client_id => c.id, :deleted_at => nil).scope_categories_satisfied(:client, :deleted)
         end
       end
     end

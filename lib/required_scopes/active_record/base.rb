@@ -9,7 +9,7 @@ module RequiredScopes
 
       included do
         class << self
-          delegate :satisfying_category, :satisfying_categories, :to => :relation
+          delegate :scope_categories_satisfied, :scope_category_satisfied, :to => :relation
         end
       end
 
@@ -57,7 +57,7 @@ module RequiredScopes
         #     User.unscoped { the_user = User.where(:name => 'foo').first }
         #
         # ActiveRecord also lets you use class methods as scopes; if you want one of these to count as satisfying a
-        # scope category, use #satisfying_category (or #satisfying_categories):
+        # scope category, use #scope_category_satisfied (or #scope_categories_satisfied):
         #
         #     class User < ActiveRecord::Base
         #       must_scope_by :client
@@ -67,7 +67,7 @@ module RequiredScopes
         #       class << self
         #         def for_client_named(client_name)
         #           client_id = CLIENT_MAP[client_name]
-        #           where(:client_id => client_id).satisfying_category(:client)
+        #           where(:client_id => client_id).scope_category_satisfied(:client)
         #         end
         #       end
         #     end
@@ -165,12 +165,12 @@ module RequiredScopes
         #
         #       class << self
         #         def for_client_named(c)
-        #           where(:client_id => CLIENT_ID_TO_NAME_MAP[c]).satisfying_base_scope
+        #           where(:client_id => CLIENT_ID_TO_NAME_MAP[c]).base_scope_satisfied
         #         end
         #       end
         #     end
-        def satisfying_base_scope
-          satisfying_category(:base)
+        def base_scope_satisfied
+          scope_category_satisfied(:base)
         end
 
 

@@ -64,11 +64,11 @@ describe "RequiredScopes basic operations" do
     end
 
     it "should allow manually saying that categories are satisfied" do
-      ::User.red.satisfying_category(:taste).to_a.sort.should == [ @red_salty, @red_sweet ].to_a
-      ::User.satisfying_category(:color).sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].to_a
-      ::User.satisfying_categories(:color, :taste).to_a.sort.should ==
+      ::User.red.scope_category_satisfied(:taste).to_a.sort.should == [ @red_salty, @red_sweet ].to_a
+      ::User.scope_category_satisfied(:color).sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].to_a
+      ::User.scope_categories_satisfied(:color, :taste).to_a.sort.should ==
         [ @red_sweet, @green_sweet, @blue_sweet, @red_salty, @green_salty, @blue_salty ].to_a.sort
-      ::User.satisfying_categories(:color, :taste).sweet.to_a.sort.should ==
+      ::User.scope_categories_satisfied(:color, :taste).sweet.to_a.sort.should ==
         [ @red_sweet, @green_sweet, @blue_sweet ].to_a.sort
     end
 
@@ -76,15 +76,15 @@ describe "RequiredScopes basic operations" do
       ::User.class_eval do
         class << self
           def red_and_green
-            satisfying_category(:color).where(:favorite_color => %w{red green})
+            scope_category_satisfied(:color).where(:favorite_color => %w{red green})
           end
 
           def green_and_blue
-            where(:favorite_color => %w{green blue}).satisfying_category(:color)
+            where(:favorite_color => %w{green blue}).scope_category_satisfied(:color)
           end
 
           def just_blue
-            where(:favorite_color => %w{red blue}).satisfying_category(:color).where(:favorite_color => %w{blue green})
+            where(:favorite_color => %w{red blue}).scope_category_satisfied(:color).where(:favorite_color => %w{blue green})
           end
         end
       end

@@ -23,7 +23,7 @@ describe "RequiredScopes base scope operations" do
 
       class << self
         def blue
-          satisfying_base_scope.where(:favorite_color => 'blue')
+          base_scope_satisfied.where(:favorite_color => 'blue')
         end
       end
     end
@@ -66,6 +66,6 @@ describe "RequiredScopes base scope operations" do
   end
 
   it "should work if you manually tell it that the base scope is satisfied" do
-    ::User.satisfying_base_scope.to_a
+    ::User.base_scope_satisfied.to_a
   end
 end

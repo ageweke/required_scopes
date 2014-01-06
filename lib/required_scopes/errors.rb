@@ -41,7 +41,7 @@ Satisfy these categories by including scopes in your query that are tagged with
       def build_message
         %{Model #{model_class.name} requires specification of a base scope before using it in a query
 or other such operation. (Base scopes are those declared with #base_scope rather than just #scope,
-or class methods that include #satisfying_base_scope.)}
+or class methods that include #base_scope_satisfied.)}
       end
     end
   end

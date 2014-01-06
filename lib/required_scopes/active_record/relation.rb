@@ -7,8 +7,8 @@ require 'required_scopes/active_record/version_compatibility'
 ::ActiveRecord::Relation.class_eval do
   # Tells this Relation that one or more categories have been satisfied.
   def required_scope_categories_satisfied!(categories)
-    @scope_categories_satisfied ||= [ ]
-    @scope_categories_satisfied |= categories
+    @satisfied_scope_categories ||= [ ]
+    @satisfied_scope_categories |= categories
   end
 
   # Tells this Relation that _all_ categories have been satisfied.
@@ -17,8 +17,8 @@ require 'required_scopes/active_record/version_compatibility'
   end
 
   # Returns the set of scope categories that have been satisfied.
-  def scope_categories_satisfied
-    @scope_categories_satisfied ||= [ ]
+  def satisfied_scope_categories
+    @satisfied_scope_categories ||= [ ]
   end
 
   # Call this method inline, exactly as you would any class-defined scope, to indicate that a particular category
@@ -31,22 +31,22 @@ require 'required_scopes/active_record/version_compatibility'
   #       class << self
   #         def active_for_client_named(client_name)
   #           client_id = CLIENT_MAP[client_name]
-  #           where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client)
+  #           where(:client_id => client_id).where(:deleted => false).scope_categories_satisfied(:client)
   #         end
   #       end
   #     end
   #
   #     User.active_for_client_named('foo').first
-  #     User.where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client, :deleted).first
-  def satisfying_categories(*categories)
+  #     User.where(:client_id => client_id).where(:deleted => false).scope_categories_satisfied(:client, :deleted).first
+  def scope_categories_satisfied(*categories)
     out = clone
     out.required_scope_categories_satisfied!(categories)
     out
   end
 
-  # Alias for #satisfying_categories.
-  def satisfying_category(category)
-    satisfying_categories(category)
+  # Alias for #scope_categories_satisfied.
+  def scope_category_satisfied(category)
+    scope_categories_satisfied(category)
   end
 
   delegate :required_scope_categories, :to => :klass
@@ -58,7 +58,7 @@ require 'required_scopes/active_record/version_compatibility'
   # we raise.
   def ensure_categories_satisfied!(triggering_method)
     required_categories = required_scope_categories
-    missing_categories = required_categories - scope_categories_satisfied
+    missing_categories = required_categories - satisfied_scope_categories
 
     if missing_categories.length > 0
       # We return a special exception for the category +:base+, because we want to give a simpler, cleaner error
@@ -68,7 +68,7 @@ require 'required_scopes/active_record/version_compatibility'
         raise RequiredScopes::Errors::BaseScopeNotSatisfiedError.new(klass, self, triggering_method)
       else
         raise RequiredScopes::Errors::RequiredScopeCategoriesNotSatisfiedError.new(
-          klass, self, triggering_method, required_categories, scope_categories_satisfied)
+          klass, self, triggering_method, required_categories, satisfied_scope_categories)
       end
     end
   end
