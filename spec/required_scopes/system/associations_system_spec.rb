@@ -44,7 +44,7 @@ describe "RequiredScopes and associations" do
       must_scope_by :color
       belongs_to :group
       has_one :user_preference
-      has_and_belongs_to_many :categories
+      has_and_belongs_to_many :categories, :join_table => :rec_spec_categories_users
 
       scope :red, lambda { where(:favorite_color => :red) }, :satisfies => :color
     end
@@ -60,7 +60,7 @@ describe "RequiredScopes and associations" do
     end
 
     define_model_class(:Category, :rec_spec_categories) do
-      has_and_belongs_to_many :users
+      has_and_belongs_to_many :users, :join_table => :rec_spec_categories_users
 
       must_scope_by :catcolor
     end

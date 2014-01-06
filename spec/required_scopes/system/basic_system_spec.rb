@@ -107,15 +107,15 @@ describe "RequiredScopes basic operations" do
             where(:favorite_color => %w{green blue}).scope_category_satisfied(:color)
           end
 
-          def just_blue
-            where(:favorite_color => %w{red blue}).scope_category_satisfied(:color).where(:favorite_color => %w{blue green})
+          def red_and_blue
+            where(:favorite_color => %w{red blue}).scope_category_satisfied(:color).where(:favorite_taste => %w{salty sweet})
           end
         end
       end
 
       ::User.red_and_green.salty.to_a.sort.should == [ @red_salty, @green_salty ].sort
       ::User.green_and_blue.salty.to_a.sort.should == [ @green_salty, @blue_salty ].sort
-      ::User.just_blue.salty.to_a.sort.should == [ @blue_salty ].sort
+      ::User.red_and_blue.salty.to_a.sort.should == [ @red_salty, @blue_salty ].sort
     end
   end
 end

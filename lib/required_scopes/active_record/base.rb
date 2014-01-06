@@ -90,7 +90,7 @@ module RequiredScopes
           @required_scope_categories += categories
 
           categories.each do |category|
-            scope "ignoring_#{category}", lambda { all }, :satisfies => category
+            scope "ignoring_#{category}", lambda { relation }, :satisfies => category
           end
         end
 
