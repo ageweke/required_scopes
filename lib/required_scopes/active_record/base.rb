@@ -55,6 +55,19 @@ module RequiredScopes
         end
 
 
+        def base_scope_required!
+          must_scope_by :base
+        end
+
+        def base_scope(name, body, &block)
+          scope(name, body, :category => :base, &block)
+          end
+
+        def satisfying_base_scope
+          satisfying_category(:base)
+        end
+
+
 
         def scope(name, body, *args, &block)
           if args && args[-1] && args[-1].kind_of?(Hash)

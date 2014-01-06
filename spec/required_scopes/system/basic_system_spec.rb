@@ -94,10 +94,4 @@ describe "RequiredScopes basic operations" do
       ::User.just_blue.salty.to_a.sort.should == [ @blue_salty ].sort
     end
   end
-
-  # ::User.class_eval do
-  #   base_scope_required!
-
-  #   base_scope :red, lambda { where(:favorite_color => 'red') }
-  # end
 end

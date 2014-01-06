@@ -24,8 +24,12 @@ require 'required_scopes/errors'
     missing_categories = required_categories - scope_categories_satisfied
 
     if missing_categories.length > 0
-      raise RequiredScopes::Errors::RequiredScopeCategoriesNotSatisfiedError.new(
-        klass, self, triggering_method, required_categories, scope_categories_satisfied)
+      if missing_categories == [ :base ]
+        raise RequiredScopes::Errors::BaseScopeNotSatisfiedError.new(klass, self, triggering_method)
+      else
+        raise RequiredScopes::Errors::RequiredScopeCategoriesNotSatisfiedError.new(
+          klass, self, triggering_method, required_categories, scope_categories_satisfied)
+      end
     end
   end
 
