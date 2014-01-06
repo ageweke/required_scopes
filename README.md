@@ -144,7 +144,12 @@ This sets up the following behavior:
 
 `base_scope_required!` and `base_scope` are actually just syntactic sugar on top of a more general system that lets
 you declare one or more _scope categories_ (each of which is just a symbol) and various scopes and class methods that
-_satisfy_ those categories. For example:
+_satisfy_ those categories.
+
+(`base_scope_required!` is exactly equivalent to `must_scope_by :base`, and `base_scope :foo, lambda { ... }` is
+exactly equivalent to `scope :foo, lambda { ... }, :satisfies => :base`.)
+
+For example:
 
     class User < ActiveRecord::Base
       must_scope_by :deleted, :client
