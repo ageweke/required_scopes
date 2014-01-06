@@ -7,8 +7,9 @@ module RequiredScopes
 
       module ClassMethods
         def must_scope_by(*args)
-          categories = args.map { |a| a.to_sym }
-          @required_scope_categories = categories
+          categories = args.map(&:to_sym)
+          @required_scope_categories ||= [ ]
+          @required_scope_categories += categories
 
           categories.each do |category|
             scope "ignoring_#{category}", lambda { all }, :category => category
@@ -39,7 +40,18 @@ module RequiredScopes
         end
 
         def required_scope_categories
-          @required_scope_categories || [ ]
+          if self == ::ActiveRecord::Base
+            [ ]
+          else
+            out = (@required_scope_categories || [ ]) | superclass.required_scope_categories
+            out - (@ignored_parent_scope_requirements || [ ])
+          end
+        end
+
+        def ignore_parent_scope_requirement(*args)
+          categories = args.map(&:to_sym)
+          @ignored_parent_scope_requirements ||= [ ]
+          @ignored_parent_scope_requirements |= categories
         end
 
 

@@ -33,6 +33,48 @@ module RequiredScopes
         end
       end
 
+      def define_color_and_taste_scopes!
+        ::User.class_eval do
+          must_scope_by :color, :taste
+
+          scope :red, lambda { where(:favorite_color => 'red') }, :category => :color
+          scope :green, lambda { where(:favorite_color => 'green') }, :category => :color
+
+          scope :salty, lambda { where(:favorite_taste => 'salty') }, :category => :taste
+          scope :sweet, lambda { where(:favorite_taste => 'sweet') }, :category => :taste
+
+          scope :red_and_salty, lambda { where(:favorite_color => 'red', :favorite_taste => 'salty') }, :categories => [ :color, :taste ]
+        end
+      end
+
+      def should_raise_missing_scopes(triggering_method, required, satisfied, options = { })
+        e = result = nil
+
+        begin
+          result = yield
+        rescue RequiredScopes::Errors::RequiredScopeCategoriesNotSatisfiedError => rscnse
+          e = rscnse
+        end
+
+        raise "Expected a scopes-not-satisfied error, but got none" unless e
+
+        expected_model_class = options[:model_class] || ::User
+
+        e.class.should == RequiredScopes::Errors::RequiredScopeCategoriesNotSatisfiedError
+        e.model_class.should == expected_model_class
+        e.current_relation.should be
+        e.current_relation.kind_of?(::ActiveRecord::Relation).should be
+        e.triggering_method.should == triggering_method
+        e.required_categories.sort_by(&:to_s).should == required.sort_by(&:to_s)
+        e.satisfied_categories.sort_by(&:to_s).should == satisfied.sort_by(&:to_s)
+
+        expected_missing_categories = required - satisfied
+        e.missing_categories.sort_by(&:to_s).should == expected_missing_categories.sort_by(&:to_s)
+
+        e.message.should match(/#{expected_model_class.name}/)
+        e.message.should match(/#{expected_missing_categories.sort_by(&:to_s).join(", ")}/)
+      end
+
       def create_standard_system_spec_models!
         define_model_class(:User, 'rec_spec_users') { }
       end
