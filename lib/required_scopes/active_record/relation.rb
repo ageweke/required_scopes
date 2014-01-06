@@ -29,7 +29,7 @@ require 'required_scopes/errors'
     end
   end
 
-  [ :exec_queries, :perform_calculation, :update_all, :delete_all, :exists? ].each do |method_name|
+  [ :exec_queries, :perform_calculation, :update_all, :delete_all, :exists?, :pluck ].each do |method_name|
     method_base_name = method_name
     method_suffix = ""
 
