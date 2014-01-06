@@ -57,4 +57,20 @@ describe "RequiredScopes and associations" do
   it "should not require a scope when accessed via an association, with eager loading" do
     Group.includes(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
   end
+
+  it "should not require a scope when accessed via #joins" do
+    Group.joins(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+  end
+
+  it "should not require a scope when accessed via #eager_load" do
+    Group.eager_load(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+  end
+
+  it "should not require a scope when accessed via #preload" do
+    Group.preload(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+  end
+
+  it "should not require a scope when accessed via #references" do
+    Group.references(:users).find(@group1.id).users.map(&:id).sort.should == [ @user1, @user2 ].map(&:id).sort
+  end
 end
