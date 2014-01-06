@@ -89,12 +89,12 @@ module RequiredScopes
         def unscoped(&block)
           if block
             super do
-              current_scope.all_required_scope_categories_satisfied!
+              current_scope.all_scope_categories_satisfied!
               block.call
             end
           else
             out = super
-            out.all_required_scope_categories_satisfied!
+            out.all_scope_categories_satisfied!
             out
           end
         end
@@ -192,13 +192,13 @@ module RequiredScopes
                 old_body = body
                 body = lambda do
                   out = old_body.call
-                  out.required_scope_categories_satisfied!(categories)
+                  out.scope_categories_satisfied!(categories)
                   out
                 end
               else
                 # Old, sad, static scopes -- i.e., scope :foo, where(...)
                 body = body.clone
-                body.required_scope_categories_satisfied!(categories)
+                body.scope_categories_satisfied!(categories)
                 body
               end
             end

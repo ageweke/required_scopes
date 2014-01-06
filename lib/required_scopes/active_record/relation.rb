@@ -5,22 +5,6 @@ require 'required_scopes/active_record/version_compatibility'
 # This file simply adds a few small methods to ::ActiveRecord::Relation to allow tracking which scope categories have
 # been satisfied on a relation.
 ::ActiveRecord::Relation.class_eval do
-  # Tells this Relation that one or more categories have been satisfied.
-  def required_scope_categories_satisfied!(categories)
-    @satisfied_scope_categories ||= [ ]
-    @satisfied_scope_categories |= categories
-  end
-
-  # Tells this Relation that _all_ categories have been satisfied.
-  def all_required_scope_categories_satisfied!
-    required_scope_categories_satisfied!(required_scope_categories)
-  end
-
-  # Returns the set of scope categories that have been satisfied.
-  def satisfied_scope_categories
-    @satisfied_scope_categories ||= [ ]
-  end
-
   # Call this method inline, exactly as you would any class-defined scope, to indicate that a particular category
   # or categories have been satisfied. It's really intended for use in a class method, but both of these will
   # work:
@@ -40,13 +24,29 @@ require 'required_scopes/active_record/version_compatibility'
   #     User.where(:client_id => client_id).where(:deleted => false).scope_categories_satisfied(:client, :deleted).first
   def scope_categories_satisfied(*categories)
     out = clone
-    out.required_scope_categories_satisfied!(categories)
+    out.scope_categories_satisfied!(categories)
     out
   end
 
   # Alias for #scope_categories_satisfied.
   def scope_category_satisfied(category)
     scope_categories_satisfied(category)
+  end
+
+  # Tells this Relation that one or more categories have been satisfied.
+  def scope_categories_satisfied!(categories)
+    @satisfied_scope_categories ||= [ ]
+    @satisfied_scope_categories |= categories
+  end
+
+  # Tells this Relation that _all_ categories have been satisfied.
+  def all_scope_categories_satisfied!
+    scope_categories_satisfied!(required_scope_categories)
+  end
+
+  # Returns the set of scope categories that have been satisfied.
+  def satisfied_scope_categories
+    @satisfied_scope_categories ||= [ ]
   end
 
   delegate :required_scope_categories, :to => :klass
