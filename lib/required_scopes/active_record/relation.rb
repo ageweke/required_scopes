@@ -1,16 +1,21 @@
 require 'active_record'
 require 'required_scopes/errors'
 
+# This file simply adds a few small methods to ::ActiveRecord::Relation to allow tracking which scope categories have
+# been satisfied on a relation.
 ::ActiveRecord::Relation.class_eval do
+  # Tells this Relation that one or more categories have been satisfied.
   def required_scope_categories_satisfied!(categories)
     @scope_categories_satisfied ||= [ ]
     @scope_categories_satisfied |= categories
   end
 
+  # Tells this Relation that _all_ categories have been satisfied.
   def all_required_scope_categories_satisfied!
     required_scope_categories_satisfied!(required_scope_categories)
   end
 
+  # Returns the set of scope categories that have been satisfied.
   def scope_categories_satisfied
     @scope_categories_satisfied ||= [ ]
   end
@@ -19,11 +24,17 @@ require 'required_scopes/errors'
 
 
   private
+  # Raises an exception if there is at least one required scope category that has not yet been satisfied.
+  # +triggering_method+ is the name of the method called that triggered this check; we include this in the error
+  # we raise.
   def ensure_categories_satisfied!(triggering_method)
     required_categories = required_scope_categories
     missing_categories = required_categories - scope_categories_satisfied
 
     if missing_categories.length > 0
+      # We return a special exception for the category +:base+, because we want to give a simpler, cleaner error
+      # message for users who are just using the #base_scope_required! syntactic sugar instead of the full categories
+      # system.
       if missing_categories == [ :base ]
         raise RequiredScopes::Errors::BaseScopeNotSatisfiedError.new(klass, self, triggering_method)
       else
@@ -33,6 +44,8 @@ require 'required_scopes/errors'
     end
   end
 
+  # Override certain key methods in ActiveRecord::Relation to make sure they check for category satisfaction before
+  # running.
   [ :exec_queries, :perform_calculation, :update_all, :delete_all, :exists?, :pluck ].each do |method_name|
     method_base_name = method_name
     method_suffix = ""

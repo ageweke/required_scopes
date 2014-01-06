@@ -1,9 +1,15 @@
 module RequiredScopes
   module Errors
+    # The parent of all errors raised by RequiredScopes.
     class Base < StandardError; end
 
+    # Raised if you try to define a scope that satisfies a category as a static scope
+    # (_e.g._, <tt>scope :foo, where(...)</tt>) rather than a block-based scope
+    # (as is required of all scopes in Rails 4: <tt>scope :foo, lambda { where(...) }</tt>).
     class CategoryScopesMustBeDefinedAsProcError < Base; end
 
+    # Raised if you try to execute an operation on a model or relation without having satisfied one or more
+    # scopes.
     class RequiredScopeCategoriesNotSatisfiedError < Base
       attr_reader :model_class, :current_relation, :triggering_method, :required_categories, :satisfied_categories, :missing_categories
 
@@ -28,6 +34,9 @@ Satisfy these categories by including scopes in your query that are tagged with
       end
     end
 
+    # Raised if you try to execute an operation on a model or relation without having satisfied the base scope.
+    # (We use this instead of RequiredScopeCategoriesNotSatisfiedError, above, simply to make the error message
+    # simpler and more comprehensible to users who only are using the "base scope" syntactic sugar.)
     class BaseScopeNotSatisfiedError < RequiredScopeCategoriesNotSatisfiedError
       def initialize(model_class, current_relation, triggering_method)
         super(model_class, current_relation, triggering_method, [ :base ], [ ])
