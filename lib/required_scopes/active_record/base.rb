@@ -207,23 +207,19 @@ module RequiredScopes
             categories = Array(opts.delete(:satisfies)).compact
 
             if categories && categories.length > 0
-              unless body.kind_of?(Proc)
-                raise RequiredScopes::Errors::CategoryScopesMustBeDefinedAsProcError,
-                  %{If you declare a scope as satisfying one or more required categories (here, #{categories.inspect}),
-you must define the body of the scope as a Proc/lambda, not by immediately passing
-a scope. (The latter form is deprecated as of Rails 4 anyway.)
-
-This is because we need to mark the scope as satisfied at runtime, and we can only
-do that if we have a block to put the code into.
-
-Offending scope: #{name.inspect}}
-              end
-
-              old_body = body
-              body = lambda do
-                out = old_body.call
-                out.required_scope_categories_satisfied!(categories)
-                out
+              if body.kind_of?(Proc)
+                # New, happy, dynamic scopes -- i.e., scope :foo, lambda { where(...) }
+                old_body = body
+                body = lambda do
+                  out = old_body.call
+                  out.required_scope_categories_satisfied!(categories)
+                  out
+                end
+              else
+                # Old, sad, static scopes -- i.e., scope :foo, where(...)
+                body = body.clone
+                body.required_scope_categories_satisfied!(categories)
+                body
               end
             end
 

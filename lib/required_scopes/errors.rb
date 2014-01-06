@@ -3,11 +3,6 @@ module RequiredScopes
     # The parent of all errors raised by RequiredScopes.
     class Base < StandardError; end
 
-    # Raised if you try to define a scope that satisfies a category as a static scope
-    # (_e.g._, <tt>scope :foo, where(...)</tt>) rather than a block-based scope
-    # (as is required of all scopes in Rails 4: <tt>scope :foo, lambda { where(...) }</tt>).
-    class CategoryScopesMustBeDefinedAsProcError < Base; end
-
     # Raised if you try to execute an operation on a model or relation without having satisfied one or more
     # scopes.
     class RequiredScopeCategoriesNotSatisfiedError < Base
