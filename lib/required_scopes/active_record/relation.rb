@@ -21,6 +21,34 @@ require 'required_scopes/active_record/version_compatibility'
     @scope_categories_satisfied ||= [ ]
   end
 
+  # Call this method inline, exactly as you would any class-defined scope, to indicate that a particular category
+  # or categories have been satisfied. It's really intended for use in a class method, but both of these will
+  # work:
+  #
+  #     class User < ActiveRecord::Base
+  #       must_scope_by :client, :deleted
+  #
+  #       class << self
+  #         def active_for_client_named(client_name)
+  #           client_id = CLIENT_MAP[client_name]
+  #           where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client)
+  #         end
+  #       end
+  #     end
+  #
+  #     User.active_for_client_named('foo').first
+  #     User.where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client, :deleted).first
+  def satisfying_categories(*categories)
+    out = clone
+    out.required_scope_categories_satisfied!(categories)
+    out
+  end
+
+  # Alias for #satisfying_categories.
+  def satisfying_category(category)
+    satisfying_categories(category)
+  end
+
   delegate :required_scope_categories, :to => :klass
 
 

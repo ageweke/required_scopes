@@ -7,6 +7,12 @@ module RequiredScopes
     module Base
       extend ActiveSupport::Concern
 
+      included do
+        class << self
+          delegate :satisfying_category, :satisfying_categories, :to => :relation
+        end
+      end
+
       module ClassMethods
         # Declares that all users of your model must scope it by one or more categories when running a query, performing
         # a calculation (like #count or #exists?), or running certain bulk-update statements (like #delete_all).
@@ -93,34 +99,6 @@ module RequiredScopes
           end
         end
 
-        # Call this method inline, exactly as you would any class-defined scope, to indicate that a particular category
-        # or categories have been satisfied. It's really intended for use in a class method, but both of these will
-        # work:
-        #
-        #     class User < ActiveRecord::Base
-        #       must_scope_by :client, :deleted
-        #
-        #       class << self
-        #         def active_for_client_named(client_name)
-        #           client_id = CLIENT_MAP[client_name]
-        #           where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client)
-        #         end
-        #       end
-        #     end
-        #
-        #     User.active_for_client_named('foo').first
-        #     User.where(:client_id => client_id).where(:deleted => false).satisfying_categories(:client, :deleted).first
-        def satisfying_categories(*categories)
-          out = all
-          out.required_scope_categories_satisfied!(categories)
-          out
-        end
-
-        # Alias for #satisfying_categories.
-        def satisfying_category(category)
-          satisfying_categories(category)
-        end
-
         # Returns the set of scope categories that must be satisfied for this class, as a (possibly-empty) Array.
         def required_scope_categories
           if self == ::ActiveRecord::Base
@@ -139,6 +117,8 @@ module RequiredScopes
           @ignored_parent_scope_requirements ||= [ ]
           @ignored_parent_scope_requirements |= categories
         end
+
+
 
 
         # Declares that use of this ActiveRecord::Base class must be scoped by at least one _base scope_; a base scope
