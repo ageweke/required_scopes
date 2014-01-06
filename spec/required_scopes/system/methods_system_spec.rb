@@ -20,6 +20,23 @@ describe "RequiredScopes method coverage" do
     drop_standard_system_spec_tables!
   end
 
+  # We add these methods because a number of tests are calling methods that only work on relations -- not on a model
+  # class directly. This gives us a new method, #to_relation, that makes sure we always have a Relation, but without
+  # otherwise changing the target of our call in any way.
+  class ActiveRecord::Base
+    class << self
+      def to_relation
+        relation
+      end
+    end
+  end
+
+  class ActiveRecord::Relation
+    def to_relation
+      self
+    end
+  end
+
   class ShouldRaiseDescription
     attr_reader :description, :block
 
@@ -37,20 +54,6 @@ describe "RequiredScopes method coverage" do
   class << self
     def srd(description, triggering_method, &block)
       ShouldRaiseDescription.new(description, triggering_method, block)
-    end
-  end
-
-  class ActiveRecord::Base
-    class << self
-      def to_relation
-        relation
-      end
-    end
-  end
-
-  class ActiveRecord::Relation
-    def to_relation
-      self
     end
   end
 
@@ -72,18 +75,18 @@ describe "RequiredScopes method coverage" do
       srd(:many?, :perform_calculation) { |s| s.to_relation.many? },
       srd(:scoping, :exec_queries) { |s| s.to_relation.scoping { ::User.all.to_a } },
       srd(:update_all, :update_all) { |s| s.update_all("name = 'foo'") },
-      srd(:update, :exec_queries) { |s| s.update(::User.unscoped.first.id, :name => 'foo') },
+      srd(:update, :exec_queries) { |s| s.update(::User.unscoped.all_scope_categories_satisfied.first.id, :name => 'foo') },
       srd(:destroy_all, :exec_queries) { |s| s.destroy_all },
-      srd(:destroy, :exec_queries) { |s| s.destroy(::User.unscoped.first.id) },
+      srd(:destroy, :exec_queries) { |s| s.destroy(::User.unscoped.all_scope_categories_satisfied.first.id) },
       srd(:delete_all, :delete_all) { |s| s.delete_all },
-      srd(:delete, :delete_all) { |s| s.delete(::User.unscoped.first.id) },
+      srd(:delete, :delete_all) { |s| s.delete(::User.unscoped.all_scope_categories_satisfied.first.id) },
       srd(:load, :exec_queries) { |s| s.to_relation.load },
       srd(:reload, :exec_queries) { |s| s.to_relation.reload },
 
       # ActiveRecord::Relation::FinderMethods
-      srd(:find, :exec_queries) { |s| s.find(::User.unscoped.first.id) },
+      srd(:find, :exec_queries) { |s| s.find(::User.unscoped.all_scope_categories_satisfied.first.id) },
       srd(:find_by, :exec_queries) { |s| s.find_by(:name => 'User 1') },
-      srd(:find_by!, :exec_queries) { |s| s.find_by!(:name => ::User.unscoped.first.name) },
+      srd(:find_by!, :exec_queries) { |s| s.find_by!(:name => ::User.unscoped.all_scope_categories_satisfied.first.name) },
       srd(:take, :exec_queries) { |s| s.take },
       srd(:take!, :exec_queries) { |s| s.take! },
       srd(:first, :exec_queries) { |s| s.first },

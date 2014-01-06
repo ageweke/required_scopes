@@ -49,18 +49,12 @@ describe "RequiredScopes basic operations" do
       ::User.ignoring_color.sweet.to_a.sort.should == [ @red_sweet, @green_sweet, @blue_sweet ].sort
     end
 
-    it "should skip all checks on #unscoped" do
-      ::User.unscoped.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
+    it "should still require scopes even if #unscoped is used" do
+      should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ ]) { ::User.unscoped.to_a }
     end
 
-    it "should skip all checks on #unscoped, and persist through other scopes" do
-      ::User.unscoped.red.to_a.sort.should == [ @red_salty, @red_sweet ].sort
-    end
-
-    it "should skip all checks inside an #unscoped block" do
-      ::User.unscoped do
-        ::User.all.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
-      end
+    it "should still require scopes even if #unscoped is used in a block form" do
+      should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ ]) { ::User.unscoped { ::User.all.to_a } }
     end
 
     it "should allow manually saying that categories are satisfied" do
@@ -70,6 +64,36 @@ describe "RequiredScopes basic operations" do
         [ @red_sweet, @green_sweet, @blue_sweet, @red_salty, @green_salty, @blue_salty ].to_a.sort
       ::User.scope_categories_satisfied(:color, :taste).sweet.to_a.sort.should ==
         [ @red_sweet, @green_sweet, @blue_sweet ].to_a.sort
+    end
+
+    it "should allow manually saying that categories are satisfied, in a block" do
+      ran_block = false
+      ::User.scope_category_satisfied(:taste) do
+        ::User.red.to_a.sort.should == [ @red_salty, @red_sweet].to_a
+        ran_block = true
+      end
+      ran_block.should be
+
+      ran_block = false
+      ::User.scope_category_satisfied(:taste) do
+        should_raise_missing_scopes(:exec_queries, [ :color, :taste ], [ :taste ]) { ::User.all.to_a }
+        ran_block = true
+      end
+      ran_block.should be
+
+      ran_block = false
+      ::User.scope_category_satisfied(:taste) do
+        ::User.red.to_a.sort.should == [ @red_salty, @red_sweet ].sort
+        ran_block = true
+      end
+      ran_block.should be
+
+      ran_block = false
+      ::User.all_scope_categories_satisfied do
+        ::User.all.to_a.sort.should == [ @red_salty, @red_sweet, @green_salty, @green_sweet, @blue_salty, @blue_sweet ].sort
+        ran_block = true
+      end
+      ran_block.should be
     end
 
     it "should allow saying that categories are satisfied in a class method, in any position" do

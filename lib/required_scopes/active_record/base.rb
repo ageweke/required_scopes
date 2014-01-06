@@ -1,4 +1,5 @@
 require 'active_support'
+require 'active_record'
 
 module RequiredScopes
   module ActiveRecord
@@ -9,8 +10,17 @@ module RequiredScopes
 
       included do
         class << self
-          delegate :scope_categories_satisfied, :scope_category_satisfied, :to => :relation
+          delegate :scope_categories_satisfied, :scope_category_satisfied,
+            :all_scope_categories_satisfied, :to => :relation
         end
+      end
+
+      # Calling #destroy ends up generating a relation, via this method, that is used to destroy the object. We need
+      # to make sure we don't trigger any checks on this call.
+      def relation_for_destroy
+        out = super
+        out.all_scope_categories_satisfied!
+        out
       end
 
       module ClassMethods
@@ -81,21 +91,6 @@ module RequiredScopes
 
           categories.each do |category|
             scope "ignoring_#{category}", lambda { all }, :satisfies => category
-          end
-        end
-
-        # Overrides ActiveRecord::Base#unscoped to remove all category requirements. If you explicitly ask for something
-        # to be unscoped, you've presumably thought about scoping, after all. :)
-        def unscoped(&block)
-          if block
-            super do
-              current_scope.all_scope_categories_satisfied!
-              block.call
-            end
-          else
-            out = super
-            out.all_scope_categories_satisfied!
-            out
           end
         end
 
@@ -211,4 +206,16 @@ module RequiredScopes
       end
     end
   end
+end
+
+# When you call #includes to include an associated table, the Preloader ends up building a scope (via #build_scope)
+# that it uses to retrieve these rows. We need to make sure we don't trigger any checks on this scope.
+::ActiveRecord::Associations::Preloader::Association.class_eval do
+  def build_scope_with_required_scopes_ignored
+    out = build_scope_without_required_scopes_ignored
+    out.all_scope_categories_satisfied!
+    out
+  end
+
+  alias_method_chain :build_scope, :required_scopes_ignored
 end
