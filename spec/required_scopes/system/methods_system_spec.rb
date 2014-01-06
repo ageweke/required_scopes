@@ -58,14 +58,12 @@ describe "RequiredScopes method coverage" do
   end
 
   describe "methods that should raise" do
+    should_raise_methods =
     [
       # ActiveRecord::Relation
       srd(:first_or_create, :exec_queries) { |s| s.first_or_create(:name => 'some user') },
       srd(:first_or_create!, :exec_queries) { |s| s.first_or_create!(:name => 'some user') },
       srd(:first_or_initialize, :exec_queries) { |s| s.first_or_initialize(:name => 'some user') },
-      srd(:find_or_create_by, :exec_queries) { |s| s.find_or_create_by(:name => 'some user') },
-      srd(:find_or_create_by!, :exec_queries) { |s| s.find_or_create_by!(:name => 'some user') },
-      srd(:find_or_initialize_by, :exec_queries) { |s| s.find_or_initialize_by(:name => 'some user') },
       srd(:to_a, :exec_queries) { |s| s.to_relation.to_a },
       srd(:explain, :exec_queries) { |s| s.to_relation.explain },
       srd(:as_json, :exec_queries) { |s| s.to_relation.as_json },
@@ -120,7 +118,17 @@ describe "RequiredScopes method coverage" do
       srd(:include?, :exec_queries) { |s| s.to_relation.include?('foo') },
       srd(:to_ary, :exec_queries) { |s| s.to_relation.to_ary },
       srd(:to_a, :exec_queries) { |s| s.to_relation.to_a }
-    ].each do |srd_obj|
+    ]
+
+    if ::RequiredScopes::ActiveRecord::VersionCompatibility.supports_find_or_create_by?
+      should_raise_methods += [
+        srd(:find_or_create_by, :exec_queries) { |s| s.find_or_create_by(:name => 'some user') },
+        srd(:find_or_create_by!, :exec_queries) { |s| s.find_or_create_by!(:name => 'some user') },
+        srd(:find_or_initialize_by, :exec_queries) { |s| s.find_or_initialize_by(:name => 'some user') },
+      ]
+    end
+
+    should_raise_methods.each do |srd_obj|
       describe "##{srd_obj.description}" do
         it "should raise when invoked on the base class" do
           srd_obj.go!(self, ::User, [ :color, :taste ], [ ])

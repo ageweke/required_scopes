@@ -2,7 +2,8 @@ module RequiredScopes
   module ActiveRecord
     module VersionCompatibility
       class << self
-        delegate :is_association_relation?, :supports_references_method?, :apply_version_specific_fixes!, :to => :impl
+        delegate :is_association_relation?, :supports_references_method?, :apply_version_specific_fixes!,
+          :supports_find_or_create_by?, :to => :impl
 
         private
         def impl
@@ -28,6 +29,10 @@ module RequiredScopes
         def apply_version_specific_fixes!
 
         end
+
+        def supports_find_or_create_by?
+          true
+        end
       end
 
       class ActiveRecord3
@@ -50,6 +55,10 @@ module RequiredScopes
 
             alias_method_chain :target_scope, :required_scopes_removed
           end
+        end
+
+        def supports_find_or_create_by?
+          false
         end
       end
     end
