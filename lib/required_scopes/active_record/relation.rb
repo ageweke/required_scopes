@@ -1,5 +1,6 @@
 require 'active_record'
 require 'required_scopes/errors'
+require 'required_scopes/active_record/version_compatibility'
 
 # This file simply adds a few small methods to ::ActiveRecord::Relation to allow tracking which scope categories have
 # been satisfied on a relation.
@@ -56,7 +57,7 @@ require 'required_scopes/errors'
     end
 
     define_method("#{method_base_name}_with_scope_categories_check#{method_suffix}") do |*args, &block|
-      ensure_categories_satisfied!(method_name) unless kind_of?(::ActiveRecord::AssociationRelation)
+      ensure_categories_satisfied!(method_name) unless RequiredScopes::ActiveRecord::VersionCompatibility.is_association_relation?(self)
       send("#{method_base_name}_without_scope_categories_check#{method_suffix}", *args, &block)
     end
 
