@@ -113,7 +113,21 @@ module RequiredScopes
           @ignored_parent_scope_requirements |= categories
         end
 
+        # We want #unscoped to remove any actual scoping rules, just like it does in ActiveRecord by default. However,
+        # we *don't* want it to remove any category satisfaction that we're currently under. Why? So you can do this:
+        #
+        #     User.all_scope_categories_satisfied do
+        #       ...
+        #       User.unscoped.find(...)
+        #       ...
+        #     end
+        def unscoped
+          satisfied_by_default = current_scope.try(:satisfied_scope_categories) || [ ]
 
+          out = super
+          out = out.scope_category_satisfied(satisfied_by_default) if satisfied_by_default.length > 0
+          out
+        end
 
 
         # Declares that use of this ActiveRecord::Base class must be scoped by at least one _base scope_; a base scope
