@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   ar_version = ar_version.strip if ar_version
 
   version_spec = case ar_version
-  when nil then [ ">= 3.0", "<= 4.99.99" ]
+  when nil then [ ">= 3.2.0", "<= 4.99.99" ]
   when 'master' then nil
   else [ "=#{ar_version}" ]
   end
@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
     s.add_dependency("activerecord", *version_spec)
   end
 
-  s.add_dependency "activesupport", ">= 3.0", "<= 4.99.99"
+  s.add_dependency "activesupport", ">= 3.2.0", "<= 4.99.99"
 
   require File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'required_scopes', 'helpers', 'database_helper'))
   database_gem_name = RequiredScopes::Helpers::DatabaseHelper.maybe_database_gem_name
