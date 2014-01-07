@@ -73,6 +73,17 @@ ones, as developers completely forget about your `deleted_at` column, or whateve
 Hence, RequiredScopes. It prevents you from forgetting about critical scopes, yet doesn't try to shoehorn a single
 `default_scope` everywhere.
 
+#### Supported Versions
+
+RequiredScopes supports:
+
+* Ruby 1.8.7, 1.9.3, 2.0.0, 2.1.0, and JRuby 1.7.9.
+* ActiveRecord 3.2.x and 4.0.x.
+* Any database that works with ActiveRecord.
+
+Note that because RequiredScopes ties in quite tightly with ActiveRecord, supporting previous ActiveRecord versions
+would be significant work. Patches are always welcome. :-)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -137,8 +148,8 @@ This sets up the following behavior:
 
     # The special scope "ignoring_base" is generated for you; it satisfies the requirement without constraining in any way
     User.ignoring_base.first # => SELECT * FROM users LIMIT 1
-    # #unscoped automatically satisfies all requirements, without constraining in any way
-    User.unscoped.first      # => SELECT * FROM users LIMIT 1
+    # #base_scope_satisfied automatically satisfies the requirement, without constraining in any way
+    User.base_scope_satisfied.first      # => SELECT * FROM users LIMIT 1
 
 #### `must_scope_by`, or, the general case
 
@@ -181,9 +192,17 @@ any scopes for the given category. So, while `User.not_deleted.first` will raise
 haven't satisfied the `:client` category, `User.not_deleted.ignoring_client.first` will run just fine, and will not
 constrain on client in any way.
 
-The built-in ActiveRecord `#unscoped` method always is considered to satisfy all scopes, in either block form or
-inline form: `User.unscoped.first` and `User.unscoped { User.first }` will both return the first user, without regard
-to client or `deleted_at`.
+All scopes get methods called `#scope_category_satisfied` and `#scope_categories_satisfied`. (You can actually pass
+either a single scope or multiple scopes to either one.) These mark categories as satisfied, without constraining in
+any way; this is useful for class methods, as above, that should be considered to satisfy a requirement. They also
+function in block form, just like `#scoping` or `#unscoped` from ActiveRecord do:
+
+    User.scope_category_satisfied(:client) do
+      User.not_deleted.first # => SELECT * FROM users WHERE deleted_at IS NULL LIMIT 1
+    end
+
+Note that the built-in ActiveRecord `#unscoped` method does not interact with RequiredScopes in any way. Unscoping
+neither satisfies nor removes the satisfaction of any required categories.
 
 #### RequiredScopes and Inheritance
 

@@ -178,8 +178,8 @@ module RequiredScopes
         #         end
         #       end
         #     end
-        def base_scope_satisfied
-          scope_category_satisfied(:base)
+        def base_scope_satisfied(&block)
+          scope_category_satisfied(:base, &block)
         end
 
 
