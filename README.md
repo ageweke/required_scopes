@@ -216,7 +216,7 @@ the child class. This removes the requirement from the child class.
 
 #### How Smart Is It?
 
-It's important to note that RequiredScopes does not, in any way, _actually look at your WHERE clauses_. That is, the
+It's important to note that RequiredScopes does not, in any way, _actually look at your `WHERE` clauses_. That is, the
 only thing it's doing is matching the categories you've said are required with scopes that satisfy those categories;
 it does not know or care what those scopes actually _do_.
 
@@ -239,3 +239,37 @@ sense, anyway: if your default scope satisfies a category, then it's really not 
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+### Running Specs
+
+RequiredScopes is quite thoroughly tested, using RSpec. Note that all of its tests are "system" tests, in that they
+test the entire Gem, all the way down through ActiveRecord, to the database. This is because there is really no
+significant code in RequiredScopes that's independent of its interface to ActiveRecord, and so unit tests would be of
+little use. (In other words, making this gem work correctly is all about getting the patches to ActiveRecord right,
+not about consistency of any sophisticated internal logic.)
+
+To run these specs, you'll need a database server up and running that ActiveRecord can talk to. The specs create and
+drop various tables (all prefixed with `rec_spec_`, so they're highly unlikely to conflict with anything). Because
+they do this, there's no need to prepare the database ahead of time, and it should be safe to use a database that's
+also used for other things. (On the other hand, having its own dedicated database won't hurt; and if you run these
+specs against a database containing data that's precious, you're just asking for it.)
+
+To run these specs:
+
+1. If you want to test against a particular ActiveRecord version, `export REQUIRED_SCOPES_AR_TEST_VERSION=3.2.16` (for example). If you want the latest stable ActiveRecord, simply skip this step.
+2. `cd required_scopes` (the root of the gem).
+3. Create a file called `spec_database_config.rb` at the root level of the gem. It should define your connection to the database, like so:
+
+    REQUIRED_SCOPES_SPEC_DATABASE_CONFIG = {
+      :require => 'pg',
+      :database_gem_name => 'pg',
+      :config => {
+        :adapter => 'postgresql',
+        :database => 'some_database',
+        :username => 'postgres',
+        :password => 'some_password'
+      }
+    }
+
+4. `bundle install`. (This step must come _after_ you create `spec_database_config.rb`; it uses that file to know what database gem to include.)
+5. `bundle exec rspec spec` will run all specs. (Or just `rake`.)
