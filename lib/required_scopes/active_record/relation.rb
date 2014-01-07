@@ -103,14 +103,17 @@ require 'required_scopes/active_record/version_compatibility'
     method_base_name = method_name
     method_suffix = ""
 
-    if method_base_name =~ /^(.*?)([\?\!])$/
+    if method_base_name.to_s =~ /^(.*?)([\?\!])$/
       method_base_name = $1
       method_suffix = $2
     end
 
-    define_method("#{method_base_name}_with_scope_categories_check#{method_suffix}") do |*args, &block|
+    with_name = "#{method_base_name}_with_scope_categories_check#{method_suffix}"
+    without_name = "#{method_base_name}_without_scope_categories_check#{method_suffix}"
+
+    define_method(with_name) do |*args, &block|
       ensure_categories_satisfied!(method_name) unless RequiredScopes::ActiveRecord::VersionCompatibility.is_association_relation?(self)
-      send("#{method_base_name}_without_scope_categories_check#{method_suffix}", *args, &block)
+      send(without_name, *args, &block)
     end
 
     alias_method_chain method_name, :scope_categories_check
