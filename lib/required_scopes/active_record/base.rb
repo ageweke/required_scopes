@@ -90,7 +90,7 @@ module RequiredScopes
           @required_scope_categories += categories
 
           categories.each do |category|
-            scope "ignoring_#{category}", lambda { relation }, :satisfies => category
+            scope "ignoring_#{category}", lambda { send(::RequiredScopes::ActiveRecord::VersionCompatibility.relation_method_for_ignoring_scopes) }, :satisfies => category
           end
         end
 

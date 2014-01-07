@@ -3,7 +3,7 @@ module RequiredScopes
     module VersionCompatibility
       class << self
         delegate :is_association_relation?, :supports_references_method?, :apply_version_specific_fixes!,
-          :supports_find_or_create_by?, :to => :impl
+          :supports_find_or_create_by?, :relation_method_for_ignoring_scopes, :to => :impl
 
         private
         def impl
@@ -33,6 +33,10 @@ module RequiredScopes
         def supports_find_or_create_by?
           true
         end
+
+        def relation_method_for_ignoring_scopes
+          :all
+        end
       end
 
       class ActiveRecord3
@@ -59,6 +63,10 @@ module RequiredScopes
 
         def supports_find_or_create_by?
           false
+        end
+
+        def relation_method_for_ignoring_scopes
+          :relation
         end
       end
     end
