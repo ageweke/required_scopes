@@ -1,0 +1,25 @@
+rvm:
+    - "1.8.7"
+    - "1.9.3"
+    - "2.0.0"
+    - "jruby-1.7.6"
+env:
+    - REQUIRED_SCOPES_AR_TEST_VERSION=3.2.16 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=mysql
+    - REQUIRED_SCOPES_AR_TEST_VERSION=3.2.16 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=postgres
+    - REQUIRED_SCOPES_AR_TEST_VERSION=3.2.16 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=sqlite
+    - REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=mysql
+    - REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=postgres
+    - REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=sqlite
+before_script:
+    # - export JRUBY_OPTS="-J-Xmx256m -J-Xms256m $JRUBY_OPTS"
+    - mysql -e 'create database myapp_test;'
+    - psql -c 'create database myapp_test;' -U postgres
+matrix:
+    exclude:
+        # ActiveRecord 4.x doesn't support Ruby 1.8.7
+        -   rvm: 1.8.7
+            env: REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=mysql
+        -   rvm: 1.8.7
+            env: REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=postgres
+        -   rvm: 1.8.7
+            env: REQUIRED_SCOPES_AR_TEST_VERSION=4.0.2 REQUIRED_SCOPES_TRAVIS_CI_DATABASE_TYPE=sqlite
