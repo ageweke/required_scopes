@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version       = RequiredScopes::VERSION
   s.authors       = ["Andrew Geweke"]
   s.email         = ["andrew@geweke.org"]
-  s.description   = %q{Require an explicit scope for all queries to a table.}
-  s.summary       = %q{Require an explicit scope for all queries to a table.}
+  s.description   = %q{Don't let developers forget about critical scopes for queries.}
+  s.summary       = %q{Don't let developers forget about critical scopes for queries.}
   s.homepage      = "https://github.com/ageweke/required_scopes"
   s.license       = "MIT"
 
