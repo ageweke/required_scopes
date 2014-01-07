@@ -84,6 +84,8 @@ RequiredScopes supports:
 Note that because RequiredScopes ties in quite tightly with ActiveRecord, supporting previous ActiveRecord versions
 would be significant work. Patches are always welcome. :-)
 
+Current build status: ![Current Build Status](https://api.travis-ci.org/ageweke/required_scopes.png?branch=master)
+
 ## Installation
 
 Add this line to your application's Gemfile:
